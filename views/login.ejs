@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · MTN Ghana Reports</title><link rel="stylesheet" href="/styles.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-brand">
+      <div class="brand-mark">mtn</div>
+      <p class="eyebrow">SUBSCRIPTION INTELLIGENCE</p>
+      <h1>Every callback.<br><span>One clear picture.</span></h1>
+      <p class="brand-copy">Daily activations, renewals and unsubscribes from your MTN Ghana callback data.</p>
+      <div class="brand-footer">Private reporting workspace · Ghana</div>
+    </section>
+    <section class="login-panel">
+      <div class="mobile-mark">mtn</div>
+      <p class="eyebrow">ADMIN ACCESS</p>
+      <h2>Welcome back</h2>
+      <p class="muted">Sign in to view your subscription performance.</p>
+      <% if (error) { %><div class="alert"><%= error %></div><% } %>
+      <form method="post" action="/login" autocomplete="on">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required maxlength="100" autofocus>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="200">
+        <button class="btn btn-primary login-btn" type="submit">Sign in <span>→</span></button>
+      </form>
+      <p class="security-note"><span class="lock">▣</span> Protected admin access</p>
+    </section>
+  </main>
+</body>
+</html>

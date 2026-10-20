@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daily Report · MTN Ghana</title><link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/dashboard"><span class="brand-mark">mtn</span><span><b>Callback Desk</b><small>GHANA REPORTS</small></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item active" href="/dashboard"><span>▦</span> Daily overview</a>
+    <div class="sidebar-bottom">
+      <div class="profile-dot"><%= currentUser.username.slice(0,1).toUpperCase() %></div>
+      <div class="profile-info"><b><%= currentUser.username %></b><small>Administrator</small></div>
+      <form method="post" action="/logout"><button class="logout" title="Sign out" aria-label="Sign out">↗</button></form>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div class="crumb">Reports <span>/</span> Daily overview</div><div class="live-pill"><i></i> Database connected</div></header>
+    <section class="page-head">
+      <div><p class="eyebrow">SUBSCRIPTION PERFORMANCE</p><h1>Daily overview</h1><p class="muted">Monitor activation activity, renewals and subscriber exits.</p></div>
+      <form class="date-filter" method="get" action="/dashboard">
+        <div><label for="from">From</label><input type="date" id="from" name="from" value="<%= from %>" required></div>
+        <span class="date-arrow">→</span>
+        <div><label for="to">To</label><input type="date" id="to" name="to" value="<%= to %>" required></div>
+        <button class="btn btn-dark" type="submit">Apply dates</button>
+      </form>
+    </section>
+
+    <section class="section-title"><div><h2>Performance summary</h2><p><%= from %> to <%= to %> · Accra date range</p></div><span class="range-tag">DATE RANGE</span></section>
+    <section class="metrics-grid">
+      <article class="metric-card metric-activation"><div class="metric-top"><span>Activation base count</span><span class="metric-icon">↗</span></div><div class="metric-value"><%= formatNumber(total.activation_base_count) %></div><div class="metric-foot">Insufficient balance + activation success</div></article>
+      <article class="metric-card"><div class="metric-top"><span>Activation success</span><span class="metric-icon green">✓</span></div><div class="metric-value"><%= formatNumber(total.activation_success_count) %></div><div class="metric-foot">Status: Activation Success</div></article>
+      <article class="metric-card"><div class="metric-top"><span>Insufficient balance</span><span class="metric-icon amber">!</span></div><div class="metric-value"><%= formatNumber(total.insufficient_balance_count) %></div><div class="metric-foot">Status: Insufficent balance</div></article>
+      <article class="metric-card"><div class="metric-top"><span>Retry activation success</span><span class="metric-icon purple">↻</span></div><div class="metric-value"><%= formatNumber(total.retry_activation_success_count) %></div><div class="metric-foot">Status: Retry_Activation_Success</div></article>
+      <article class="metric-card"><div class="metric-top"><span>Renewals</span><span class="metric-icon green">↻</span></div><div class="metric-value"><%= formatNumber(total.renewal_count) %></div><div class="metric-foot">REN rows with charge_amt ≠ 0</div></article>
+      <article class="metric-card"><div class="metric-top"><span>Unsubscribes</span><span class="metric-icon red">↘</span></div><div class="metric-value"><%= formatNumber(total.unsub_count) %></div><div class="metric-foot">Lifecycle starts with UNSUB</div></article>
+      <article class="metric-card"><div class="metric-top"><span>Calculated charge total</span><span class="metric-icon green">₵</span></div><div class="metric-value"><%= formatNumber(total.calculated_charge_total) %></div><div class="metric-foot">1.5 per SUB/REN row where charge_amt &gt; 0</div></article>
+    </section>
+
+    <section class="section-title table-heading"><div><h2>Date-wise breakdown</h2><p>One row per callback date. Newest dates appear first.</p></div><button class="btn btn-light" type="button" onclick="window.print()">Print report ↗</button></section>
+    <section class="table-card">
+      <div class="table-scroll"><table>
+        <thead><tr><th>Date</th><th>Activation base</th><th>Activation success</th><th>Insufficient balance</th><th>Retry success</th><th>Renewals</th><th>Unsubscribes</th><th>Activation charge</th><th>Renewal charge</th><th>Calculated total</th></tr></thead>
+        <tbody>
+        <% if (!rows.length) { %><tr><td class="empty" colspan="10">No matching callback records found for this date range.</td></tr><% } %>
+        <% rows.forEach((r) => { %>
+          <tr>
+            <td><b><%= formatDate(r.report_date) %></b><small class="date-raw"><%= String(r.report_date).slice(0,10) %></small></td>
+            <td><span class="count-chip"><%= formatNumber(r.activation_base_count) %></span></td>
+            <td><span class="positive"><%= formatNumber(r.activation_success_count) %></span></td>
+            <td><%= formatNumber(r.insufficient_balance_count) %></td>
+            <td><%= formatNumber(r.retry_activation_success_count) %></td>
+            <td><%= formatNumber(r.renewal_count) %></td>
+            <td><span class="negative"><%= formatNumber(r.unsub_count) %></span></td>
+            <td class="money"><%= formatNumber(r.calculated_activation_charge) %></td>
+            <td class="money"><%= formatNumber(r.calculated_renewal_charge) %></td>
+            <td class="money"><%= formatNumber(r.calculated_charge_total) %></td>
+          </tr>
+        <% }) %>
+        </tbody>
+        <% if (rows.length) { %><tfoot><tr><td>Total</td><td><%= formatNumber(total.activation_base_count) %></td><td><%= formatNumber(total.activation_success_count) %></td><td><%= formatNumber(total.insufficient_balance_count) %></td><td><%= formatNumber(total.retry_activation_success_count) %></td><td><%= formatNumber(total.renewal_count) %></td><td><%= formatNumber(total.unsub_count) %></td><td><%= formatNumber(total.calculated_activation_charge) %></td><td><%= formatNumber(total.calculated_renewal_charge) %></td><td><%= formatNumber(total.calculated_charge_total) %></td></tr></tfoot><% } %>
+      </table></div>
+      <div class="table-note">Calculated charge = 1.5 per SUB or REN row where charge_amt &gt; 0. This is a reporting rule, not the raw charge_amt sum.</div>
+    </section>
+    <footer class="footer"><span>MTN Ghana · Subscription callback reports</span><span>Times interpreted in Africa/Accra</span></footer>
+  </main>
+</body>
+</html>
